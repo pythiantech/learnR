@@ -2,6 +2,7 @@ Introduction
 ------------
 
 A typical data science project looks something like the figure shown below. Credit to this goes to Hadley Wickham and his excellent book, **R For Data Science**. To begin our analysis we obbviously need to import our data. The dataset for this analysis is available [here](https://data.sonomacounty.ca.gov/Government/Animal-Shelter-Intake-and-Outcome/924a-vesw/data).
+
 <img src="www/data-science-explore.png" alt="The Data Science Process" width="60%" />
 <p class="caption">
 The Data Science Process
