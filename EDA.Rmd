@@ -12,7 +12,7 @@ always_allow_html: yes
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-#Introduction
+##Introduction
 A typical data science project looks something like the figure shown below. Credit to this goes to Hadley Wickham and his excellent book, **R For Data Science**. To begin our analysis we obbviously need to import our data. The dataset for this analysis is available [here]( https://data.sonomacounty.ca.gov/Government/Animal-Shelter-Intake-and-Outcome/924a-vesw/data).
 ```{r,echo=FALSE,process, fig.cap='The Data Science Process', out.width='60%', fig.asp=.75, fig.align='center'}
 knitr::include_graphics("www/data-science-explore.png")
@@ -31,7 +31,7 @@ Let's have a look at our dataset. We can do this using the `glimpse()` function.
 glimpse(animals)
 ```
 
-#Transforming Data
+##Transforming Data
 As you can see there are some date fields which have been read in as characters. We need to convert these to dates. We can use functions from the `lubridate` package in order to achieve this.
 
 ```{r, message=FALSE}
@@ -96,3 +96,18 @@ Notice that we have used another package called `magrittr`. This was the package
 ```{r}
 glimpse(animals)
 ```
+
+One of the variables in our dataset is `Location` which contains the latitude and longitude of the outcome jurisdiction. If we can extract the latitude and longitude, we could add these on a map for visualizations. I find the `qdapRegex` package very useful for claning up this type of data. We can add two new variables to our dataframe to store the values of lat and long.
+With the location information available as coordinates, we can use the `leaflet` package to view this information on a map. 
+```{r, message=FALSE}
+library(qdapRegex)
+library(leaflet)
+animals %>% group_by(Location) %>% 
+  summarise(Count=n()) %>% 
+  mutate(Lat = as.numeric(ex_between(Location, "(", ",")),
+         Long = as.numeric(ex_between(Location, ",", ")"))) %>% 
+leaflet() %>% addTiles() %>% 
+  addCircleMarkers(lng = ~Long, lat= ~Lat, radius= ~log(Count),
+                   stroke=FALSE,fillOpacity = 1, label=~as.character(Count))
+```
+
