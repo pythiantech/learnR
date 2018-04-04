@@ -15,15 +15,15 @@ knitr::opts_chunk$set(echo = TRUE)
 #Introduction
 A typical data science project looks something like the figure shown below. Credit to this goes to Hadley Wickham and his excellent book, **R For Data Science**. To begin our analysis we obbviously need to import our data. The dataset for this analysis is available [here]( https://data.sonomacounty.ca.gov/Government/Animal-Shelter-Intake-and-Outcome/924a-vesw/data).
 ```{r,echo=FALSE,process, fig.cap='The Data Science Process', out.width='60%', fig.asp=.75, fig.align='center'}
-knitr::include_graphics("data-science-explore.png")
+knitr::include_graphics("www/data-science-explore.png")
 ```
 
 We can download the dataset as a csv file or read it directly from the download url.
 
 ```{r,message=FALSE}
 library(tidyverse)
-animals <- read_csv("Animal_Shelter_Intake_and_Outcome.csv")
-# animals <- read_csv("https://data.sonomacounty.ca.gov/api/views/924a-vesw/rows.csv?accessType=DOWNLOAD")
+animals <- read_csv("Data/Animal_Shelter_Intake_and_Outcome.csv")
+animals <- read_csv("https://data.sonomacounty.ca.gov/api/views/924a-vesw/rows.csv?accessType=DOWNLOAD")
 ```
 
 Let's have a look at our dataset. We can do this using the `glimpse()` function.

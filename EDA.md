@@ -2,7 +2,7 @@ Introduction
 ============
 
 A typical data science project looks something like the figure shown below. Credit to this goes to Hadley Wickham and his excellent book, **R For Data Science**. To begin our analysis we obbviously need to import our data. The dataset for this analysis is available [here](https://data.sonomacounty.ca.gov/Government/Animal-Shelter-Intake-and-Outcome/924a-vesw/data).
-<img src="data-science-explore.png" alt="The Data Science Process" width="60%" />
+<img src="www/data-science-explore.png" alt="The Data Science Process" width="60%" />
 <p class="caption">
 The Data Science Process
 </p>
@@ -11,8 +11,8 @@ We can download the dataset as a csv file or read it directly from the download 
 
 ``` r
 library(tidyverse)
-animals <- read_csv("Animal_Shelter_Intake_and_Outcome.csv")
-# animals <- read_csv("https://data.sonomacounty.ca.gov/api/views/924a-vesw/rows.csv?accessType=DOWNLOAD")
+animals <- read_csv("Data/Animal_Shelter_Intake_and_Outcome.csv")
+animals <- read_csv("https://data.sonomacounty.ca.gov/api/views/924a-vesw/rows.csv?accessType=DOWNLOAD")
 ```
 
 Let's have a look at our dataset. We can do this using the `glimpse()` function.
@@ -21,7 +21,7 @@ Let's have a look at our dataset. We can do this using the `glimpse()` function.
 glimpse(animals)
 ```
 
-    ## Observations: 13,560
+    ## Observations: 13,568
     ## Variables: 24
     ## $ Name                   <chr> NA, "SUGAR", "*MILLIE", "SAM", "ZEUS", ...
     ## $ Type                   <chr> "CAT", "DOG", "DOG", "DOG", "DOG", "DOG...
@@ -66,7 +66,7 @@ The `mdy()` function converts the character variables to date variables in month
 str(animals$`Intake Date`)
 ```
 
-    ##  Date[1:13560], format: "2017-11-01" "2017-02-03" "2017-03-15" "2014-02-13" "2015-10-17" ...
+    ##  Date[1:13568], format: "2017-11-01" "2017-02-03" "2017-03-15" "2014-02-13" "2015-10-17" ...
 
 Notice the use of back ticks around variables that are more than one word. It's easy to overlook this and a better way to work is to follow camel case convention for naming variables. I always use the tab key for auto completion and this automatically takes care of variable names being addressed in the right format.
 
@@ -78,7 +78,7 @@ table(animals$Type)
 
     ## 
     ##   CAT   DOG OTHER 
-    ##  4788  7760  1012
+    ##  4788  7767  1013
 
 As you can see there are some animals calssified as 'OTHER'. We can get rid of these and only work with dogs and cats. We can use the `filter()` function from `dplyr` to achieve this.
 
@@ -94,7 +94,7 @@ table(animals$Sex)
 
     ## 
     ##   Female     Male Neutered   Spayed  Unknown 
-    ##     1361     1634     4794     4058      701
+    ##     1362     1633     4797     4061      702
 
 ``` r
 #We can again filter out animals with Unknown sex
@@ -108,7 +108,7 @@ table(animals$Sex)
 
     ## 
     ## Female   Male 
-    ##   5419   6428
+    ##   5423   6430
 
 Another great function to use while examining our dataset is the `summary()` function. In one glance we can get a fairly good idea of the variable under examination.
 
@@ -119,7 +119,7 @@ summary(animals$`Date Of Birth`)
     ##         Min.      1st Qu.       Median         Mean      3rd Qu. 
     ## "1991-09-01" "2010-07-06" "2013-10-15" "2012-06-30" "2015-05-31" 
     ##         Max.         NA's 
-    ## "2020-09-22"       "1863"
+    ## "2020-09-22"       "1866"
 
 Do we spot some trouble here? If you look at the max value, we can see that some animals aren't born yet. Their year of birth is 2020. Also there are some missing values. While we could impute some values for the missing data, we will stick to just changing these values to NA.
 
@@ -148,7 +148,7 @@ Notice that we have used another package called `magrittr`. This was the package
 glimpse(animals)
 ```
 
-    ## Observations: 11,847
+    ## Observations: 11,853
     ## Variables: 24
     ## $ Name                   <chr> NA, "SUGAR", "*MILLIE", "SAM", "ZEUS", ...
     ## $ Type                   <fct> CAT, DOG, DOG, DOG, DOG, DOG, DOG, DOG,...
