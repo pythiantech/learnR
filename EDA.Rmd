@@ -2,10 +2,10 @@
 title: "Exploratory Data Analysis - Animals Shelter Dataset"
 author: "Dhiraj Khanna"
 date: "4/4/2018"
-output: html_document
-#  md_document:
-#     variant: markdown_github
-# always_allow_html: yes
+output: 
+ md_document:
+    variant: markdown_github
+always_allow_html: yes
 ---
 
 ```{r setup, include=FALSE}
