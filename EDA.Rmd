@@ -99,7 +99,7 @@ glimpse(animals)
 
 One of the variables in our dataset is `Location` which contains the latitude and longitude of the outcome jurisdiction. If we can extract the latitude and longitude, we could add these on a map for visualizations. I find the `qdapRegex` package very useful for claning up this type of data. We can add two new variables to our dataframe to store the values of lat and long.
 With the location information available as coordinates, we can use the `leaflet` package to view this information on a map. 
-```{r, message=FALSE}
+```{r, message=FALSE, eval=FALSE}
 library(qdapRegex)
 library(leaflet)
 animals %>% group_by(Location) %>% 
