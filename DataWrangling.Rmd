@@ -1,0 +1,397 @@
+---
+title: "Data Wrangling"
+author: "Dhiraj Khanna"
+date: "Created 21/08/2019; Last Update `r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  slidy_presentation:
+    footer: "Copyright (c) 2019, Pythian Technologies"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  comment = "#>",
+  fig.align = "centre",
+  fig.height = 4,
+  fig.width = 5,
+  warning = FALSE,
+  message = FALSE,
+  error = FALSE)
+```
+
+## What is Data Wrangling?
+
+Struggling with your data to get it into a form ready for analysis.
+
+`dplyr` and `tidyr` give you most of the tools that you will need while doing this.
+
+## Load the libraries
+
+```{r, message=FALSE, echo=TRUE}
+library(tidyverse)
+library(nycflights13)
+
+?flights
+  ```
+
+## What does the flights dataset contain?
+
+```{r}
+glimpse(flights)
+```
+
+## Let's look at all flights that take off on the 1st of Jan
+
+```{r}
+filter(flights, month == 1, day == 1) #Notice the use of '=='
+```
+
+## Save to a variable
+
+```{r}
+jan1 <- filter(flights, month == 1, day == 1)
+```
+
+## All flights that departed in Nov or Dec
+
+```{r}
+filter(flights, month == 11 | month == 12)
+```
+## Logical Operators
+
+![](images/transform-logical.png)
+
+## A useful shorthand
+
+A useful short-hand for this problem is `x %in% y`. This will select every row where x 
+is one of the values in y. We could use it to rewrite the previous code:
+
+```{r}
+filter(flights, month %in% c(10, 11, 12))
+```
+
+## Flights that weren’t delayed (on arrival or departure) by more than two hours
+
+```{r}
+filter(flights, !(arr_delay > 120 | dep_delay > 120))
+filter(flights, arr_delay <= 120, dep_delay <= 120)
+```
+
+##  Exercises
+
+Find all filghts that:
+
+  1. Had an arrival delay of two or more hours
+  2. Flew to Houston (IAH or HOU)
+  3. Were operated by United, American, or Delta (hint: look at the `airlines` dataframe)
+  4. Departed in summer (July, August, and September)
+  5. Arrived more than two hours late, but didn’t leave late
+  6. Were delayed by at least an hour, but made up over 30 minutes in flight
+  7. Departed between midnight and 6am (inclusive)
+  
+## Solutions
+
+Had an arrival delay of two or more hours
+
+```{r}
+filter(flights, arr_delay >= 120)
+```
+
+---
+
+Flew to Houston (IAH or HOU)
+
+```{r}
+filter(flights, dest %in% c("IAH", "HOU"))
+```
+
+---
+
+Were operated by United, American, or Delta
+
+```{r}
+filter(flights, carrier %in% c("AA", "DL", "UA"))
+```
+
+---
+
+Departed in summer (July, August, and September)
+
+```{r}
+filter(flights, month %in% 7:9)
+```
+
+---
+
+Arrived more than two hours late, but didn’t leave late
+
+```{r}
+filter(flights, arr_delay > 120, dep_delay <= 0)
+```
+
+---
+
+Were delayed by at least an hour, but made up over 30 minutes in flight
+
+```{r}
+filter(flights, dep_delay >= 60, dep_delay - arr_delay > 30)
+```
+
+---
+
+Departed between midnight and 6am (inclusive)
+
+```{r}
+filter(flights, dep_time <= 600 | dep_time == 2400)
+```
+
+## Find the rows of flights with a missing departure time (dep_time)
+
+```{r}
+filter(flights, is.na(dep_time))
+```
+
+## Arrange rows with `arrange()`
+
+```{r}
+arrange(flights, year, month, day)
+```
+
+## Use `desc()` to re-order by a column in descending order:
+
+```{r}
+arrange(flights, desc(dep_delay))
+```
+
+## Exercises
+
+  1. Sort `flights` to find the most delayed flights. Find the flights that left earliest.
+  2. Sort `flights` to find the fastest flights.
+  3. Which flights travelled the longest? Which travelled the shortest?
+  
+## Solutions
+
+Sort `flights` to find the most delayed flights. Find the flights that left earliest.
+
+```{r}
+arrange(flights, desc(dep_delay))
+```
+
+Sort `flights` to find the fastest flights.
+
+The fastest flight is the one with the fastest ground speed, which can be calculated from the distance and duration of the flight. Since ground speed is not included in the data, first create a new column in flights containing ground speed in miles per hour.
+
+```{r}
+fastest_flights <- mutate(flights, mph = distance / air_time * 60)
+head(arrange(fastest_flights, desc(mph)))
+```
+
+Which flights travelled the longest? Which travelled the shortest?
+
+```{r}
+arrange(flights, desc(distance))
+```
+
+```{r}
+arrange(flights, distance)
+```
+
+## Select columns with `select()`
+
+```{r}
+select(flights, year, month, day)
+```
+
+##  Select all columns between year and day (inclusive)
+
+```{r}
+select(flights, year:day)
+```
+
+## Select all columns except those from year to day (inclusive)
+
+```{r}
+select(flights, -(year:day))
+```
+
+## There are a number of helper functions you can use within `select()`:
+
+  `starts_with("abc")`: matches names that begin with “abc”.
+
+  `ends_with("xyz")`: matches names that end with “xyz”.
+
+  `contains("ijk")`: matches names that contain “ijk”.
+
+  `num_range("x", 1:3)`: matches x1, x2 and x3.
+
+## To move a handful of variables to the start of the dataframe:
+
+```{r}
+select(flights, time_hour, air_time, everything())
+```
+
+
+## The `one_of()` function:
+
+The one_of() function selects variables with a character vector rather than unquoted variable name arguments. This function is useful because it is easier to programmatically generate character vectors with variable names than to generate unquoted variable names, which are easier to type.
+
+```{r}
+vars <- c("year", "month", "day", "dep_delay", "arr_delay")
+select(flights, one_of(vars))
+```
+
+---
+
+```{r}
+select(flights, contains("TIME"))
+```
+
+## Add new variables with `mutate()`
+
+Besides selecting sets of existing columns, it’s often useful to add new columns that are functions of existing columns. That’s the job of `mutate()`.
+
+`mutate()` always adds new columns at the end of your dataset so we’ll start by creating a narrower dataset so we can see the new variables. Remember that when you’re in RStudio, the easiest way to see all the columns is `View()`.
+
+## Add new variables with `mutate()`
+
+```{r}
+flights_sml <- select(flights, 
+  year:day, 
+  ends_with("delay"), 
+  distance, 
+  air_time
+)
+
+mutate(flights_sml,
+  gain = dep_delay - arr_delay,
+  speed = distance / air_time * 60
+)
+```
+
+## You can refer to columns that you’ve just created:
+
+```{r}
+mutate(flights_sml,
+  gain = dep_delay - arr_delay,
+  hours = air_time / 60,
+  gain_per_hour = gain / hours
+)
+```
+
+##  If you only want to keep the new variables, use `transmute()`:
+
+```{r}
+transmute(flights,
+  gain = dep_delay - arr_delay,
+  hours = air_time / 60,
+  gain_per_hour = gain / hours
+)
+```
+
+##  Useful Creation Functions
+
+**Modular Arithmetic**
+
+```{r}
+transmute(flights,
+  dep_time,
+  hour = dep_time %/% 100,
+  minute = dep_time %% 100
+)
+```
+
+---
+
+**Offsets**: `lead()` and `lag()` allow you to refer to leading or lagging values. This allows you to compute running differences (e.g. `x - lag(x)`) or find when values change (`x != lag(x)`). They are most useful in conjunction with `group_by()`, which you’ll learn about shortly.
+
+```{r}
+x <- 1:10
+lead(x)
+lag(x)
+```
+
+---
+
+**Cumulative and rolling aggregates**: R provides functions for running sums, products, mins and maxes: `cumsum()`, `cumprod()`, `cummin()`, `cummax()`; and dplyr provides `cummean()` for cumulative means. 
+
+---
+
+**Ranking**: there are a number of ranking functions, but you should start with `min_rank()`. It does the most usual type of ranking (e.g. 1st, 2nd, 2nd, 4th). The default gives smallest values the small ranks; use `desc(x)` to give the largest values the smallest ranks.
+
+```{r}
+y <- c(1, 2, 2, NA, 3, 4)
+min_rank(y)
+min_rank(desc(y))
+```
+
+## Exercises
+
+  1. Currently `dep_time` and `sched_dep_time` are convenient to look at, but hard to compute with because they’re not really continuous numbers. Convert them to a more convenient representation of number of minutes since midnight.
+  
+  2. Compare `air_time` with `arr_time - dep_time`. What do you expect to see? What do you see? What do you need to do to fix it?
+  
+  3. Compare `dep_time`, `sched_dep_time`, and `dep_delay`. How would you expect those three numbers to be related?
+  
+## Solutions
+
+Currently `dep_time` and `sched_dep_time` are convenient to look at, but hard to compute with because they’re not really continuous numbers. Convert them to a more convenient representation of number of minutes since midnight.
+
+```{r}
+flights_times <- mutate(flights,
+  dep_time_mins = (dep_time %/% 100 * 60 + dep_time %% 100) %% 1440,
+  sched_dep_time_mins = (sched_dep_time %/% 100 * 60 +
+    sched_dep_time %% 100) %% 1440
+)
+```
+
+Or we could write our own function:
+
+```{r}
+time2mins <- function(x) {
+  (x %/% 100 * 60 + x %% 100) %% 1440
+}
+```
+
+```{r}
+flights_times <- mutate(flights,
+  dep_time_mins = time2mins(dep_time),
+  sched_dep_time_mins = time2mins(sched_dep_time)
+)
+```
+
+Compare `air_time` with `arr_time - dep_time`. What do you expect to see? What do you see? What do you need to do to fix it?
+
+```{r}
+flights_airtime <-
+  mutate(flights,
+    dep_time = (dep_time %/% 100 * 60 + dep_time %% 100) %% 1440,
+    arr_time = (arr_time %/% 100 * 60 + arr_time %% 100) %% 1440,
+    air_time_diff = air_time - arr_time + dep_time
+  )
+```
+
+So, does `air_time = arr_time - dep_time`? If so, there should be no flights with non-zero values of `air_time_diff`.
+
+
+```{r}
+nrow(filter(flights_airtime, air_time_diff != 0))
+```
+
+Compare `dep_time`, `sched_dep_time`, and `dep_delay`. How would you expect those three numbers to be related?
+
+```{r}
+flights_deptime <-
+  mutate(flights,
+    dep_time_min = (dep_time %/% 100 * 60 + dep_time %% 100) %% 1440,
+    sched_dep_time_min = (sched_dep_time %/% 100 * 60 +
+      sched_dep_time %% 100) %% 1440,
+    dep_delay_diff = dep_delay - dep_time_min + sched_dep_time_min
+  )
+```
+
+Does `dep_delay_diff` equal zero for all rows?
+
+```{r}
+filter(flights_deptime, dep_delay_diff != 0)
+```
+
+
